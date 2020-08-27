@@ -1,0 +1,12 @@
+<?php
+
+// Save this file as config.php
+// and modify configuration
+
+return array(
+    "codeCheckerDataBaseUrl" => "https://codechecker.database.url",
+    "codeCheckerBinPath" => "/path/to/codechecker/bin",  // or just "" if CodeChecker is available in PATH
+    "productId" => "PRODUCT_ID",
+    "productName" => "Product Name",
+    "productDescription" => "Product description bla bla bla ..."
+);

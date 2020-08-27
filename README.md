@@ -1,2 +1,2 @@
-# codechecker-radiator
 CodeChecker Radiator
+====================
