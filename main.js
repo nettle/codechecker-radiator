@@ -176,15 +176,15 @@ function requestSummaryForDate(date) {
 
 function onConfig(result) {
     try {
-        console.log("onConfig()", "result=", result);
+        log("onConfig()", "result=", result);
         var data = JSON.parse(result);
-        console.log("onConfig()", "data=", data);
+        log("onConfig()", "data=", data);
         codeCheckerConfig.baseUrl = data.codeCheckerDataBaseUrl;
         codeCheckerConfig.productId = data.productId;
         codeCheckerConfig.productName = data.productName;
         codeCheckerConfig.productDescription = data.productDescription;
         $("#product").text(codeCheckerConfig.productName);
-        console.log("onConfig()", "codeCheckerConfig=", codeCheckerConfig);
+        log("onConfig()", "codeCheckerConfig=", codeCheckerConfig);
     } catch(e) {
         error(e);
     }
@@ -441,20 +441,20 @@ function drawChart() {
             labels: [],
             datasets: [{
                 label: "High",
-                backgroundColor: "rgba(255, 168, 0, 0.8)", // "rgb(255, 99, 132)",
+                backgroundColor: "rgba(255, 168, 0, 0.8)",
                 fill: true,
-                borderColor: "rgb(255, 168, 0)",
+                borderColor: "rgb(255, 68, 0)",
                 cubicInterpolationMode: "monotone",
-                borderWidth: 1,
+                borderWidth: 2,
                 pointRadius: 1,
                 order: 1,
                 data: [0],
                 type: "line"
             },{
                 label: "Medium",
-                backgroundColor: "rgba(169, 211, 35, 0.3)", // "rgb(120, 99, 132)",
+                backgroundColor: "rgba(255, 255, 0, 0.3)",  // "rgba(69, 211, 135, 0.3)",
                 fill: true,
-                borderColor: "rgb(169, 211, 35)", // "rgb(120, 99, 132)",
+                borderColor: "rgb(150, 150, 0)",  // "rgb(69, 211, 135)",
                 cubicInterpolationMode: "monotone",
                 borderWidth: 2,
                 pointRadius: 1,
@@ -463,9 +463,9 @@ function drawChart() {
                 type: "line"
             }, {
                 label: "Low",
-                backgroundColor: "rgba(102, 150, 3, 0.3)", // "rgb(120, 99, 32)",
+                backgroundColor: "rgba(102, 150, 3, 0.3)",
                 fill: true,
-                borderColor: "rgb(102, 150, 3)", // "rgb(120, 99, 32)",
+                borderColor: "rgb(102, 150, 3)",
                 cubicInterpolationMode: "monotone",
                 borderWidth: 2,
                 pointRadius: 1,
