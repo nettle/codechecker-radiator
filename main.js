@@ -55,10 +55,6 @@ function formateDate(date, delimiter = ".") {
     ].join(delimiter);
 }
 
-function getText(number) {
-    return number ? number : "";
-}
-
 function colorElement(element, issues, level = 3) {
     var classNegative = "negative";
     var classWarning  = "warning";
@@ -260,6 +256,13 @@ function displayTotal(issues) {
     addSummaryRow(issues);
 }
 
+function createNumberCell(number) {
+    var text = number ? number : "";
+    var cell = $("<td>").text(text);
+    cell.attr("data-sort-value", number);  // need for tablesort.js
+    return cell;
+}
+
 function addSummaryRow(issues, component = TOTAL) {
     log("addSummaryRow()", "issues=", issues);
 
@@ -277,12 +280,12 @@ function addSummaryRow(issues, component = TOTAL) {
         }).prepend(external)
     );
     // var name = $("<td>").text(component);
-    var critical = $("<td>").text(getText(issues["CRITICAL"]));
-    var high = $("<td>").text(getText(issues["HIGH"]));
-    var medium = $("<td>").text(getText(issues["MEDIUM"]));
-    var low = $("<td>").text(getText(issues["LOW"]));
-    var style = $("<td>").text(getText(issues["STYLE"]));
-    var unspecified = $("<td>").text(getText(issues["UNSPECIFIED"]));
+    var critical = createNumberCell(issues["CRITICAL"]);
+    var high = createNumberCell(issues["HIGH"]);
+    var medium = createNumberCell(issues["MEDIUM"]);
+    var low = createNumberCell(issues["LOW"]);
+    var style = createNumberCell(issues["STYLE"]);
+    var unspecified = createNumberCell(issues["UNSPECIFIED"]);
 
     if (component == TOTAL) {
         var emphasize = "ui medium header";
@@ -356,11 +359,11 @@ function displayCheckers(data) {
         );
         // var checker = $("<td>").text(item["checker"]);
         var severity = $("<td>").text(severityName[item["severity"]]);
-        var unreviewed = $("<td>").text(getText(item["unreviewed"]));
-        var confirmed = $("<td>").text(getText(item["confirmed"]));
-        var falsePositives = $("<td>").text(getText(item["false_positive"]));
-        var intentional = $("<td>").text(getText(item["intentional"]));
-        var total = $("<td>").text(getText(item["reports"]));
+        var unreviewed = createNumberCell(item["unreviewed"]);
+        var confirmed = createNumberCell(item["confirmed"]);
+        var falsePositives = createNumberCell(item["false_positive"]);
+        var intentional = createNumberCell(item["intentional"]);
+        var total = createNumberCell(item["reports"]);
 
         switch (item["severity"]) {
             case "HIGH": {
@@ -441,7 +444,7 @@ function drawChart() {
             labels: [],
             datasets: [{
                 label: "High",
-                backgroundColor: "rgba(255, 168, 0, 0.8)",
+                backgroundColor: "rgba(255, 168, 0, 0.7)",
                 fill: true,
                 borderColor: "rgb(255, 68, 0)",
                 cubicInterpolationMode: "monotone",
@@ -452,7 +455,7 @@ function drawChart() {
                 type: "line"
             },{
                 label: "Medium",
-                backgroundColor: "rgba(255, 255, 0, 0.3)",  // "rgba(69, 211, 135, 0.3)",
+                backgroundColor: "rgba(255, 200, 0, 0.3)",  // "rgba(69, 211, 135, 0.3)",
                 fill: true,
                 borderColor: "rgb(150, 150, 0)",  // "rgb(69, 211, 135)",
                 cubicInterpolationMode: "monotone",
