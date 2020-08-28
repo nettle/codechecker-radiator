@@ -150,7 +150,6 @@ function requestSummaryForComponent(component) {
 
 function requestDataForChart(days = 60) {
     log("requestDataForChart()", "requesting data...");
-    drawChart();
     var now = new Date();
     for (var d = 0; d < days; d++) {
     // for (var d = days; d >= 0; d--) {
@@ -394,11 +393,6 @@ function displayCheckers(data) {
     }
 }
 
-var chartObject = false;
-var chartConfig = false;
-var chartData = new Array();
-var chartTime = new Array();
-
 function onDataForChart(date, result) {
     try {
         log("onDataForChart()", "result=", result);
@@ -406,37 +400,55 @@ function onDataForChart(date, result) {
         log("onDataForChart()", "data=", data);
         issues = processSummary(data);
         log("onDataForChart()", "date=", date, "issues=", issues);
-
-        chartData[date.getTime()] = issues;
-        chartTime.push(date.getTime());
-        chartTime.sort();
-
-        chartConfig.data.labels = new Array();
-        chartConfig.data.datasets[0].data = new Array();
-        chartConfig.data.datasets[1].data = new Array();
-        chartConfig.data.datasets[2].data = new Array();
-        for (const time of chartTime) {
-            var datetime = new Date(Number(time));
-            chartConfig.data.labels.push(formateDate(datetime));
-            chartConfig.data.datasets[0].data.push(chartData[time]["HIGH"]);
-            chartConfig.data.datasets[1].data.push(chartData[time]["MEDIUM"]);
-            chartConfig.data.datasets[2].data.push(chartData[time]["LOW"]);
-        }
-        chartObject.update();
-
+        timeLineChart.draw(date, issues);
     } catch(e) {
         error(e);
     }
 }
 
-function drawChart() {
-    try {
-        var ctx = $("#chart").get(0).getContext("2d");
-    } catch(e) {
-        error(e);
-    }
+var timeLineChart = {
+    // Public:
+    draw: function(date, issues) {
+        try {
+            log("timeLineChart.draw()", "date=", date, "issues=", issues);
+            this.chartData[date.getTime()] = issues;
+            this.chartTime.push(date.getTime());
+            this.chartTime.sort();
 
-    chartConfig = {
+            this.chartConfig.data.labels = new Array();
+            this.chartConfig.data.datasets[0].data = new Array();
+            this.chartConfig.data.datasets[1].data = new Array();
+            this.chartConfig.data.datasets[2].data = new Array();
+            for (const time of this.chartTime) {
+                var datetime = new Date(Number(time));
+                this.chartConfig.data.labels.push(formateDate(datetime));
+                this.chartConfig.data.datasets[0].data.push(this.chartData[time]["HIGH"]);
+                this.chartConfig.data.datasets[1].data.push(this.chartData[time]["MEDIUM"]);
+                this.chartConfig.data.datasets[2].data.push(this.chartData[time]["LOW"]);
+            }
+            this.updateChart();
+        } catch(e) {
+            error(e);
+        }
+    },
+    // Protected:
+    updateChart: function() {
+        if (!this.chartObject)
+            this.createChart();
+        this.chartObject.update();
+    },
+    createChart: function() {
+        try {
+            var ctx = $("#chart").get(0).getContext("2d");
+            this.chartObject = new Chart(ctx, this.chartConfig);
+        } catch(e) {
+            error(e);
+        }
+    },
+    chartObject: false,
+    chartData: new Array(),
+    chartTime: new Array(),
+    chartConfig: {
         // The type of chart we want to create
         type: "line",
         // The data for our dataset
@@ -496,8 +508,6 @@ function drawChart() {
             }
         }
     }
-
-    chartObject = new Chart(ctx, chartConfig);
 }
 
 $(function() {
