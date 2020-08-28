@@ -32,20 +32,17 @@ var summaryTable = {
 };
 
 var summaryData = {
+    data: {},
+    get: function(component) {
+        return this.data[component];
+    },
+    add: function(component, data) {
+        this.data[component] = data;
+    },
+    remove: function() {
+        this.data = {};
+    }
 };
-
-function addSummaryData(component, data) {
-    summaryData[component] = data;
-}
-
-function getSummaryData(component) {
-    return summaryData[component];
-}
-
-function removeSummaryData() {
-    for (const key in summaryData)
-        delete summaryData[key];
-}
 
 function formateDate(date, delimiter = ".") {
     return [
@@ -191,8 +188,8 @@ function onTotal(result) {
         var data = JSON.parse(result);
         log("onTotal()", "data=", data);
 
-        removeSummaryData();
-        addSummaryData(TOTAL, data);
+        summaryData.remove();
+        summaryData.add(TOTAL, data);
 
         issues = processSummary(data);
         displayTotal(issues);
@@ -208,7 +205,7 @@ function onSummary(result, component) {
         var data = JSON.parse(result);
         log("onSummary()", "data=", data);
 
-        addSummaryData(component, data);
+        summaryData.add(component, data);
 
         issues = processSummary(data);
         addSummaryRow(issues, component);
@@ -307,7 +304,7 @@ function addSummaryRow(issues, component = TOTAL) {
     var row = $("<tr>").append(
             name, critical, high, medium, low, style, unspecified
     ).click(function() {
-            var data = getSummaryData(component);
+            var data = summaryData.get(component);
             selectSummaryRow($(this), component);
             displayCheckers(data);
     })
