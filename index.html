@@ -15,7 +15,24 @@
 <body>
     <div class="ui segment no-border" style="padding-left: 3em; padding-bottom: 0em;">
         <h1 class="ui header">
-            CodeChecker: <span id="product"></span>
+            CodeChecker: <span id="product-name"></span>
+
+<!-- NOT IMPLEMENTED YET
+            <div class="ui right floated small button">
+                Last month
+            </div>
+            <div class="ui right floated small button">
+                Last week
+            </div>
+            <div class="ui right floated small button">
+                Detected last day
+            </div>
+            <div class="ui right floated small button primary">
+                All current defects
+            </div>
+-->
+
+            <div class="sub header" id="product-description"></div>
         </h1>
     </div>
     <div class="ui segment no-border" style="padding-top: 0em;">
@@ -36,6 +53,28 @@
                     </thead>
                     <tbody id="summary">
                     </tbody>
+
+<!-- NOT IMPLEMENTED YET
+                    <tfoot class="full-width">
+                        <tr>
+                            <th colspan="7">
+                                <div class="ui small button primary disabled">
+                                    All current defects
+                                </div>
+                                <div class="ui right floated small button">
+                                    Last month
+                                </div>
+                                <div class="ui right floated small button">
+                                    Last week
+                                </div>
+                                <div class="ui right floated small button">
+                                    Detected last day
+                                </div>
+                            </th>
+                        </tr>
+                    </tfoot>
+-->
+
                 </table>
 
                 <div>

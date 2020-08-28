@@ -195,8 +195,10 @@ function onConfig(result) {
         codeCheckerConfig.productId = data.productId;
         codeCheckerConfig.productName = data.productName;
         codeCheckerConfig.productDescription = data.productDescription;
-        $("#product").text(codeCheckerConfig.productName);
         log("onConfig()", "codeCheckerConfig=", codeCheckerConfig);
+
+        $("#product-name").text(codeCheckerConfig.productName);
+        $("#product-description").text(codeCheckerConfig.productDescription);
     } catch(e) {
         error("Failed to configure CodeChecker", e, "Request result:", result);
     }
