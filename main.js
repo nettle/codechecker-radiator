@@ -8,9 +8,18 @@ function log() {
 }
 
 function error() {
-    var args = $.makeArray(arguments);
-    args.unshift("[ERROR]");
-    console.error.apply(console, args);
+    console.error.apply(console, arguments);
+    window.stop();
+
+    if (typeof showError === "undefined") {
+        showError = true;
+        var details = "";
+        for (const arg of arguments)
+            details += arg + "\n";
+        $("#error-text").text(arguments[0]);
+        $("#error-details").text(details);
+        $("#error").modal("show");
+    }
 }
 
 var codeCheckerConfig = {
@@ -99,16 +108,23 @@ function disableLoader() {
 }
 
 function onLoad() {
-    log("onLoad()", "requesting data...");
+    try {
+        log("onLoad()", "requesting data...");
 
-    // // "Dark" theme
-    // $("div,table").addClass("inverted");
+        // // "Dark" theme
+        // $("div,table").addClass("inverted");
 
-    // Enable tablesort.js
-    $("table").tablesort();
+        // Enable tablesort.js
+        $("table").tablesort();
 
-    enableLoader();
-    requestConfig();
+        // Enable accordions
+        $(".ui.accordion").accordion();
+
+        enableLoader();
+        requestConfig();
+    } catch(e) {
+        error("Unknown exception", e);
+    }
 }
 
 function requestConfig() {
@@ -171,6 +187,10 @@ function onConfig(result) {
         log("onConfig()", "result=", result);
         var data = JSON.parse(result);
         log("onConfig()", "data=", data);
+        for (const prop of ["codeCheckerDataBaseUrl", "productId", "productName"]) {
+            if (!(prop in data))
+                throw "Wrong config data: " + prop + " is missing";
+        }
         codeCheckerConfig.baseUrl = data.codeCheckerDataBaseUrl;
         codeCheckerConfig.productId = data.productId;
         codeCheckerConfig.productName = data.productName;
@@ -178,7 +198,7 @@ function onConfig(result) {
         $("#product").text(codeCheckerConfig.productName);
         log("onConfig()", "codeCheckerConfig=", codeCheckerConfig);
     } catch(e) {
-        error(e);
+        error("Failed to configure CodeChecker", e, "Request result:", result);
     }
 }
 
@@ -195,7 +215,7 @@ function onTotal(result) {
         displayTotal(issues);
         displayCheckers(data);
     } catch(e) {
-        error(e);
+        error("Failed to process data for TOTAL", e, "Request result:", result);
     }
 }
 
@@ -210,7 +230,7 @@ function onSummary(result, component) {
         issues = processSummary(data);
         addSummaryRow(issues, component);
     } catch(e) {
-        error(e);
+        error("Failed to process Summary data", e, "Component", component, "Request result:", result);
     }
 }
 
@@ -225,7 +245,7 @@ function onComponents(result) {
         }
         requestDataForChart();
     } catch(e) {
-        error(e);
+        error("Failed to process Components", e, "Request result:", result);
     }
 }
 
@@ -399,7 +419,7 @@ function onDataForChart(date, result) {
         log("onDataForChart()", "date=", date, "issues=", issues);
         timeLineChart.draw(date, issues);
     } catch(e) {
-        error(e);
+        error("Failed to process data for Chart", e, "Date:", date, "Request result:", result);
     }
 }
 
@@ -425,7 +445,7 @@ var timeLineChart = {
             }
             this.updateChart();
         } catch(e) {
-            error(e);
+            error("Failed to update Chart", e, "Date:", date, "Chart data:", issues);
         }
     },
     // Protected:
@@ -439,7 +459,7 @@ var timeLineChart = {
             var ctx = $("#chart").get(0).getContext("2d");
             this.chartObject = new Chart(ctx, this.chartConfig);
         } catch(e) {
-            error(e);
+            error("Failed to create Chart", e);
         }
     },
     chartObject: false,
