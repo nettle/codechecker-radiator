@@ -101,7 +101,11 @@ function main()
         case "total": return queryTotal();
         case "components": return queryComponents();
         case "summary": return querySummary($component, $date);
-        default: return debug_log("ERROR: unsupported query");
+        default:
+            $error = "ERROR: unsupported query '$query'";
+            $error .= "\nQUERY_STRING: " . $_SERVER["QUERY_STRING"];
+            echo $error;
+            return debug_log($error);
     }
     debug_log("Finish.\n");
 }

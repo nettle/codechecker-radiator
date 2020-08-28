@@ -127,38 +127,49 @@ function onLoad() {
     }
 }
 
+function sendRequest(query, handler) {
+    log("sendRequest()");
+    $.ajax({
+        url: "api/index.php?" + query,
+        success: handler,
+        error: function (request, status, message) {
+            error("Request error", "URL: " + this.url, "Status code: " + request.status, "Error message: " + message);
+        }
+    });
+}
+
 function requestConfig() {
     log("requestConfig()", "requesting config...");
-    $.ajax({url: "api/index.php?query=config", success: function(result) {
+    sendRequest("query=config", function(result) {
         log("requestConfig()", "data received");
         onConfig(result);
         requestTotal();
-    }});
+    });
 }
 
 function requestTotal() {
     log("requestTotal()", "requesting data...");
-    $.ajax({url: "api/index.php?query=total", success: function(result) {
+    sendRequest("query=total", function(result) {
         log("requestTotal()", "data received");
         onTotal(result);
         requestComponents();
-    }});
+    });
 }
 
 function requestComponents() {
     log("requestComponents()", "requesting data...");
-    $.ajax({url: "api/index.php?query=components", success: function(result) {
+    sendRequest("query=components", function(result) {
         log("requestComponents()", "data received");
         onComponents(result);
-    }});
+    });
 }
 
 function requestSummaryForComponent(component) {
     log("requestSummaryForComponent()", "requesting data...");
-    $.ajax({url: "api/index.php?query=summary&component=" + component, success: function(result) {
+    sendRequest("query=summary&component=" + component, function(result) {
         log("requestSummaryForComponent()", "data received");
         onSummary(result, component);
-    }});
+    });
 }
 
 function requestDataForChart(days = 60) {
@@ -176,10 +187,10 @@ function requestDataForChart(days = 60) {
 function requestSummaryForDate(date) {
     log("requestSummaryForDate()", "requesting data for " + date);
     var requestDate = formateDate(date, ":");
-    $.ajax({url: "api/index.php?query=summary&date=" + requestDate, success: function(result) {
+    sendRequest("query=summary&date=" + requestDate, function(result) {
         log("requestSummaryForDate()", "data received for " + date);
         onDataForChart(date, result);
-    }});
+    });
 }
 
 function onConfig(result) {
