@@ -193,6 +193,29 @@ function requestSummaryForDate(date) {
     });
 }
 
+function requestRecentlyDetected() {
+    log("requestRecentlyDetected()");
+    var now = new Date();
+    var lastDay = new Date();
+    lastDay.setDate(now.getDate() - 1);
+    var lastWeek = new Date();
+    lastWeek.setDate(now.getDate() - 7);
+    var lastMonth = new Date();
+    lastMonth.setDate(now.getDate() - 30);
+    requestRecent(lastDay, onLastDay);
+    requestRecent(lastWeek, onLastWeek);
+    requestRecent(lastMonth, onLastMonth);
+}
+
+function requestRecent(date, handler) {
+    log("requestRecent()", "requesting data after " + date);
+    var requestDate = formateDate(date, ":");
+    sendRequest("query=recent&date=" + requestDate, function(result) {
+        log("requestRecent()", "data received after " + date);
+        handler(result);
+    });
+}
+
 function onConfig(result) {
     try {
         log("onConfig()", "result=", result);
@@ -256,6 +279,7 @@ function onComponents(result) {
             log("onComponents()", "component=", component);
             requestSummaryForComponent(component["name"]);
         }
+        requestRecentlyDetected();
         requestDataForChart();
     } catch(e) {
         error("Failed to process Components", e, "Request result:", result);
@@ -420,6 +444,42 @@ function displayCheckers(data) {
                 checker, severity, unreviewed, confirmed, falsePositives, intentional, total
             )
         );
+    }
+}
+
+function onLastDay(result) {
+    try {
+        log("onLastDay()", "result=", result);
+        var data = JSON.parse(result);
+        log("onLastDay()", "data=", data);
+        issues = processSummary(data);
+        console.log("onLastDay()", "issues=", issues);
+    } catch(e) {
+        error("Failed to process data for the last day", e, "Request result:", result);
+    }
+}
+
+function onLastWeek(result) {
+    try {
+        log("onLastWeek()", "result=", result);
+        var data = JSON.parse(result);
+        log("onLastWeek()", "data=", data);
+        issues = processSummary(data);
+        console.log("onLastWeek()", "issues=", issues);
+    } catch(e) {
+        error("Failed to process data for the last week", e, "Request result:", result);
+    }
+}
+
+function onLastMonth(result) {
+    try {
+        log("onLastMonth()", "result=", result);
+        var data = JSON.parse(result);
+        log("onLastMonth()", "data=", data);
+        issues = processSummary(data);
+        console.log("onLastMonth()", "issues=", issues);
+    } catch(e) {
+        error("Failed to process data for the last month", e, "Request result:", result);
     }
 }
 

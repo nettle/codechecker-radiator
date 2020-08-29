@@ -46,15 +46,15 @@ function queryConfig()
     debug_log("queryConfig(): Done.");
 }
 
-function queryTotal()
+function querySummary($component = false, $before = false, $after = false)
 {
-    debug_log("queryTotal(): creating CodeChecker...");
+    debug_log("querySummary(): creating CodeChecker...");
     $codechecker = getCodeChecker();
-    debug_log("queryTotal(): getting Summary...");
-    $json = $codechecker->getSummary();
-    debug_log("queryTotal(): JSON: $json");
+    debug_log("querySummary(): getting Summary...");
+    $json = $codechecker->getSummary($component, $before, $after);
+    debug_log("querySummary(): JSON: $json");
     echo $json;
-    debug_log("queryTotal(): Done.");
+    debug_log("querySummary(): Done.");
 }
 
 function queryComponents()
@@ -66,17 +66,6 @@ function queryComponents()
     debug_log("queryComponents(): JSON: $json");
     echo $json;
     debug_log("queryComponents(): Done.");
-}
-
-function querySummary($component, $date)
-{
-    debug_log("querySummary(): creating CodeChecker...");
-    $codechecker = getCodeChecker();
-    debug_log("querySummary(): getting Summary...");
-    $json = $codechecker->getSummary($component, $date);
-    debug_log("querySummary(): JSON: $json");
-    echo $json;
-    debug_log("querySummary(): Done.");
 }
 
 function main()
@@ -98,9 +87,10 @@ function main()
     switch($query)
     {
         case "config": return queryConfig();
-        case "total": return queryTotal();
+        case "total": return querySummary();
         case "components": return queryComponents();
         case "summary": return querySummary($component, $date);
+        case "recent": return querySummary($component, false, $date);
         default:
             $error = "ERROR: unsupported query '$query'";
             $error .= "\nQUERY_STRING: " . $_SERVER["QUERY_STRING"];

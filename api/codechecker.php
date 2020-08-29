@@ -31,13 +31,15 @@ class CodeChecker
         return $result;
     }
 
-    public function getSummary($component = false, $date = false)
+    public function getSummary($component = false, $before = false, $after = false)
     {
         $command = "cmd sum --all";
         if ($component)
             $command .= " --component=" . $component;
-        if ($date)
-            $command .= " --fixed-at=" . $date;
+        if ($before)
+            $command .= " --fixed-at=" . $before;
+        if ($after)
+            $command .= " --detected-at=" . $after;
         $command .= " --url=" . $this->getProductUrl();
         $result = $this->execute($command);
         return $result;
