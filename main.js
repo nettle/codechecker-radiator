@@ -193,22 +193,11 @@ function requestSummaryForDate(date) {
     });
 }
 
-function requestRecentlyDetected() {
-    log("requestRecentlyDetected()");
+function requestRecent(days, handler) {
+    log("requestRecent()", "requesting data recent days " + days);
     var now = new Date();
-    var lastDay = new Date();
-    lastDay.setDate(now.getDate() - 1);
-    var lastWeek = new Date();
-    lastWeek.setDate(now.getDate() - 7);
-    var lastMonth = new Date();
-    lastMonth.setDate(now.getDate() - 30);
-    requestRecent(lastDay, onLastDay);
-    requestRecent(lastWeek, onLastWeek);
-    requestRecent(lastMonth, onLastMonth);
-}
-
-function requestRecent(date, handler) {
-    log("requestRecent()", "requesting data after " + date);
+    var date = new Date();
+    date.setDate(now.getDate() - days);
     var requestDate = formateDate(date, ":");
     sendRequest("query=recent&date=" + requestDate, function(result) {
         log("requestRecent()", "data received after " + date);
@@ -250,6 +239,9 @@ function onTotal(result) {
         issues = processSummary(data);
         displayTotal(issues);
         displayCheckers(data);
+
+        // Request recently detected defects
+        requestRecent(1, onLastDay);
     } catch(e) {
         error("Failed to process data for TOTAL", e, "Request result:", result);
     }
@@ -279,7 +271,6 @@ function onComponents(result) {
             log("onComponents()", "component=", component);
             requestSummaryForComponent(component["name"]);
         }
-        requestRecentlyDetected();
         requestDataForChart();
     } catch(e) {
         error("Failed to process Components", e, "Request result:", result);
@@ -448,38 +439,68 @@ function displayCheckers(data) {
 }
 
 function onLastDay(result) {
-    try {
-        log("onLastDay()", "result=", result);
-        var data = JSON.parse(result);
-        log("onLastDay()", "data=", data);
-        issues = processSummary(data);
-        console.log("onLastDay()", "issues=", issues);
-    } catch(e) {
-        error("Failed to process data for the last day", e, "Request result:", result);
-    }
+    if (!onRecentlyDetected(result, "Detected within the last day:", "red"))
+        requestRecent(7, onLastWeek);
 }
 
 function onLastWeek(result) {
-    try {
-        log("onLastWeek()", "result=", result);
-        var data = JSON.parse(result);
-        log("onLastWeek()", "data=", data);
-        issues = processSummary(data);
-        console.log("onLastWeek()", "issues=", issues);
-    } catch(e) {
-        error("Failed to process data for the last week", e, "Request result:", result);
-    }
+    if (!onRecentlyDetected(result, "Detected within the last week:", "orange"))
+        requestRecent(10, onLastTenDays);
+}
+
+function onLastTenDays(result) {
+    if (!onRecentlyDetected(result, "Detected within the last 10 days:", "orange"))
+        requestRecent(15, onLastTwoWeek);
+}
+
+function onLastTwoWeek(result) {
+    if (!onRecentlyDetected(result, "Detected within the last two weeks:"))
+        requestRecent(30, onLastMonth);
 }
 
 function onLastMonth(result) {
+    onRecentlyDetected(result, "Detected within the last month:");
+}
+
+function onRecentlyDetected(result, title, style = "") {
     try {
-        log("onLastMonth()", "result=", result);
+        log("onRecentlyDetected()", "result=", result);
         var data = JSON.parse(result);
-        log("onLastMonth()", "data=", data);
+        log("onRecentlyDetected()", "data=", data);
         issues = processSummary(data);
-        console.log("onLastMonth()", "issues=", issues);
+        log("onRecentlyDetected()", "issues=", issues);
+
+        function addLabel(element, issues, color, popup) {
+            if (issues > 0) {
+                element.append(
+                    $("<div>")
+                        .addClass("ui circular label " + color)
+                        .text(issues)
+                        .attr("data-content", popup)
+                        .attr("data-position", "bottom right")
+                );
+            }
+        }
+
+        var total = 0;
+        for (const item in issues)
+            total += issues[item];
+
+        if (total > 0) {
+            title += " " + total + " ";
+            var detected = $("<div>").text(title).addClass("ui right floated basic button " + style);
+            addLabel(detected, issues["CRITICAL"], "red", "Critical defects");
+            addLabel(detected, issues["HIGH"], "orange", "High severity defects");
+            addLabel(detected, issues["MEDIUM"], "yellow", "Medium severity defects");
+            addLabel(detected, issues["LOW"], "olive", "Low severity defects");
+            addLabel(detected, issues["STYLE"], "purple", "Style defects");
+            addLabel(detected, issues["UNSPECIFIED"], "grey", "Unspecified defects");
+            detected.insertAfter("#product-name");
+            $(".ui.label").popup();
+        }
+        return total;
     } catch(e) {
-        error("Failed to process data for the last month", e, "Request result:", result);
+        error("Failed to process recent data", e, "Title: " + title, "Request result:", result);
     }
 }
 
