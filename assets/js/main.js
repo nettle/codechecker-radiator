@@ -43,16 +43,26 @@ var summaryTable = {
 };
 
 var summaryData = {
-    data: {},
     get: function(component) {
         return this.data[component];
     },
     add: function(component, data) {
         this.data[component] = data;
     },
+    getMeta: function(component) {
+        if (this.meta)
+            return this.meta[component];
+        else
+            return false;
+    },
+    addMeta: function(meta) {
+        this.meta = meta;
+    },
     remove: function() {
         this.data = {};
-    }
+    },
+    data: {},
+    meta: false
 };
 
 function formateDate(date, delimiter = ".") {
@@ -289,10 +299,13 @@ function onComponents(result) {
         log("onComponents()", "result=", result);
         var data = JSON.parse(result);
         log("onComponents()", "data=", data);
+        var meta = {};
         for (const component of data) {
             log("onComponents()", "component=", component);
             requestSummaryForComponent(component["name"]);
+            meta[component["name"]] = component;
         }
+        summaryData.addMeta(meta);
         requestDataForChart();
     } catch(e) {
         error("Failed to process Components", e, "Request result:", result);
@@ -334,10 +347,13 @@ function addSummaryRow(issues, component = TOTAL) {
 
     var title = component;
     var url = codeCheckerConfig.getUrl() + "/reports?is-unique=on&detection-status=Unresolved";
+    var popup = false;
     if (component == TOTAL) {
         title = "TOTAL";
     } else {
         url += "&source-component=" + component;
+        var meta = summaryData.getMeta(component);
+        popup = meta["description"] + " (" + meta["value"] + ")";
     }
 
     var external = $("<i>").addClass("small external alternate icon");
@@ -349,6 +365,11 @@ function addSummaryRow(issues, component = TOTAL) {
             target: "_blank",
         }).prepend(external)
     );
+    if (popup) {
+        name.addClass("popper");
+        name.attr("data-content", popup);
+        name.attr("data-position", "bottom left")
+    }
     var critical = createNumberCell(issues["CRITICAL"]);
     var high = createNumberCell(issues["HIGH"]);
     var medium = createNumberCell(issues["MEDIUM"]);
@@ -382,11 +403,13 @@ function addSummaryRow(issues, component = TOTAL) {
             displayCheckers(data);
     })
     $("#summary").append(row);
+    $("td.popper").popup();
     if (component == TOTAL)
         selectSummaryRow(row);
 }
 
 function selectSummaryRow(row, component = false) {
+    $("td.popper").popup();
     if (summaryTable.selected == row)
         return;
     if (summaryTable.selected)
