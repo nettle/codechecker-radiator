@@ -116,15 +116,35 @@ function onLoad() {
 
         // Enable tablesort.js
         $("table").tablesort();
-
         // Enable accordions
         $(".ui.accordion").accordion();
-
+        // Display "Loading..." sign
         enableLoader();
+        // Request project configuration
         requestConfig();
+        // Reload page every 30 minutes of idle
+        reloadOnIdle(30);
     } catch(e) {
         error("Unknown exception", e);
     }
+}
+
+function reloadOnIdle(minutes) {
+    var timer = null;
+    var timeout = minutes * 60 * 1000;
+
+    function setTimer() {
+        if (timer !== null) {
+            clearTimeout(timer);
+        }
+        timer = setTimeout(function() {
+            timer = null;
+            location.reload(true);
+        }, timeout);
+    }
+
+    $(document).bind("click keyup mousemove", setTimer);
+    setTimer();
 }
 
 function sendRequest(query, handler) {
