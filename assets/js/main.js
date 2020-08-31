@@ -333,6 +333,13 @@ function displayTotal(issues) {
     $("#summary").empty();
     disableLoader();
     addSummaryRow(issues);
+
+    // Workaround for "sort table disables popup" bug
+    $("thead").click(function() {
+        setTimeout(function() {
+            $("td.popper").popup();
+        }, 100);
+    });
 }
 
 function createNumberCell(number) {
@@ -409,7 +416,6 @@ function addSummaryRow(issues, component = TOTAL) {
 }
 
 function selectSummaryRow(row, component = false) {
-    $("td.popper").popup();
     if (summaryTable.selected == row)
         return;
     if (summaryTable.selected)
