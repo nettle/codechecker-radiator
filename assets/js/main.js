@@ -34,7 +34,9 @@ var codeCheckerConfig = {
     }
 };
 
-const TOTAL = "TOTAL";
+const TOTAL = "__TOTAL__";
+const RECENT = "__RECENT__";
+
 var summaryTable = {
     selected: false,
     component: false
@@ -330,20 +332,23 @@ function createNumberCell(number) {
 function addSummaryRow(issues, component = TOTAL) {
     log("addSummaryRow()", "issues=", issues);
 
+    var title = component;
     var url = codeCheckerConfig.getUrl() + "/reports?is-unique=on&detection-status=Unresolved";
-    if (component != TOTAL)
+    if (component == TOTAL) {
+        title = "TOTAL";
+    } else {
         url += "&source-component=" + component;
+    }
 
     var external = $("<i>").addClass("small external alternate icon");
     var name = $("<td>").append(
         $("<a>", {
-            text: component,
+            text: title,
             title: "Open CodeChecker online database in new window",
             href: url,
             target: "_blank",
         }).prepend(external)
     );
-    // var name = $("<td>").text(component);
     var critical = createNumberCell(issues["CRITICAL"]);
     var high = createNumberCell(issues["HIGH"]);
     var medium = createNumberCell(issues["MEDIUM"]);
@@ -388,7 +393,7 @@ function selectSummaryRow(row, component = false) {
         summaryTable.selected.removeClass("active");
     row.addClass("active");
     summaryTable.selected = row;
-    if (component != TOTAL)
+    if (component != TOTAL && component != RECENT)
         summaryTable.component = component;
     else
         summaryTable.component = false;
@@ -487,6 +492,7 @@ function onRecentlyDetected(result, title, style = "") {
         log("onRecentlyDetected()", "result=", result);
         var data = JSON.parse(result);
         log("onRecentlyDetected()", "data=", data);
+        summaryData.add(RECENT, data);
         issues = processSummary(data);
         log("onRecentlyDetected()", "issues=", issues);
 
@@ -515,6 +521,11 @@ function onRecentlyDetected(result, title, style = "") {
             addLabel(detected, issues["LOW"], "olive", "Low severity defects");
             addLabel(detected, issues["STYLE"], "purple", "Style defects");
             addLabel(detected, issues["UNSPECIFIED"], "grey", "Unspecified defects");
+            detected.click(function() {
+                var checkers = summaryData.get(RECENT);
+                selectSummaryRow(detected, RECENT);
+                displayCheckers(checkers);
+            });
             detected.insertAfter("#product-name");
             $(".ui.label").popup();
         }
