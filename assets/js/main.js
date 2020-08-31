@@ -621,9 +621,9 @@ var timeLineChart = {
             labels: [],
             datasets: [{
                 label: "High",
-                backgroundColor: "rgba(255, 168, 0, 0.7)",
+                backgroundColor: "rgba(242, 113, 28, 0.7)",
                 fill: true,
-                borderColor: "rgb(255, 68, 0)",
+                borderColor: "rgb(242, 113, 28)",
                 cubicInterpolationMode: "monotone",
                 borderWidth: 2,
                 pointRadius: 1,
@@ -632,9 +632,9 @@ var timeLineChart = {
                 type: "line"
             },{
                 label: "Medium",
-                backgroundColor: "rgba(255, 200, 0, 0.3)",  // "rgba(69, 211, 135, 0.3)",
+                backgroundColor: "rgba(251, 189, 8, 0.3)",
                 fill: true,
-                borderColor: "rgb(150, 150, 0)",  // "rgb(69, 211, 135)",
+                borderColor: "rgb(251, 189, 8)",
                 cubicInterpolationMode: "monotone",
                 borderWidth: 2,
                 pointRadius: 1,
@@ -643,9 +643,9 @@ var timeLineChart = {
                 type: "line"
             }, {
                 label: "Low",
-                backgroundColor: "rgba(102, 150, 3, 0.3)",
+                backgroundColor: "rgba(181, 204, 24, 0.3)",
                 fill: true,
-                borderColor: "rgb(102, 150, 3)",
+                borderColor: "rgb(181, 204, 24)",
                 cubicInterpolationMode: "monotone",
                 borderWidth: 2,
                 pointRadius: 1,
