@@ -1,6 +1,5 @@
-function log() {
-    var debug = false;
-    if (debug) {
+function debug_log() {
+    if (page.debug) {
         var args = $.makeArray(arguments);
         args.unshift("[DEBUG]");
         console.log.apply(console, args);
@@ -122,7 +121,7 @@ function disableLoader() {
 
 function onLoad() {
     try {
-        log("onLoad()", "requesting data...");
+        debug_log("onLoad()");
 
         // // "Dark" theme
         // $("div,table").addClass("inverted");
@@ -161,7 +160,7 @@ function reloadOnIdle(minutes) {
 }
 
 function sendRequest(query, handler) {
-    log("sendRequest()");
+    debug_log("sendRequest()", query);
     $.ajax({
         url: "api/index.php?" + query,
         success: handler,
@@ -172,79 +171,63 @@ function sendRequest(query, handler) {
 }
 
 function requestConfig() {
-    log("requestConfig()", "requesting config...");
     sendRequest("query=config", function(result) {
-        log("requestConfig()", "data received");
         onConfig(result);
         requestTotal();
     });
 }
 
 function requestTotal() {
-    log("requestTotal()", "requesting data...");
     sendRequest("query=total", function(result) {
-        log("requestTotal()", "data received");
         onTotal(result);
         requestComponents();
     });
 }
 
 function requestComponents() {
-    log("requestComponents()", "requesting data...");
     sendRequest("query=components", function(result) {
-        log("requestComponents()", "data received");
         onComponents(result);
     });
 }
 
 function requestSummaryForComponent(component) {
-    log("requestSummaryForComponent()", "requesting data...");
     sendRequest("query=summary&component=" + component, function(result) {
-        log("requestSummaryForComponent()", "data received");
         onSummary(result, component);
     });
 }
 
 function requestDataForChart(days = 60) {
-    log("requestDataForChart()", "requesting data...");
     var now = new Date();
     for (var d = 0; d < days; d++) {
     // for (var d = days; d >= 0; d--) {
         var date = new Date();
         date.setDate(now.getDate() - d);
-        log("Date:", formateDate(date, ":"));
         requestSummaryForDate(date);
     }
 }
 
 function requestSummaryForDate(date) {
-    log("requestSummaryForDate()", "requesting data for " + date);
     // NOTE: adding time as a last second of the day
     var requestDate = formateDate(date, ":") + ":23:59:59";
     sendRequest("query=summary&date=" + requestDate, function(result) {
-        log("requestSummaryForDate()", "data received for " + date);
         onDataForChart(date, result);
     });
 }
 
 function requestRecent(days, handler) {
-    log("requestRecent()", "requesting data recent days " + days);
     var now = new Date();
     var date = new Date();
     date.setDate(now.getDate() - days);
     var requestDate = formateDate(date, ":");
     var detectedDate = formateDate(date, "-");
     sendRequest("query=recent&date=" + requestDate, function(result) {
-        log("requestRecent()", "data received after " + date);
         handler(result, detectedDate);
     });
 }
 
 function onConfig(result) {
     try {
-        log("onConfig()", "result=", result);
         var data = JSON.parse(result);
-        log("onConfig()", "data=", data);
         for (const prop of ["codeCheckerDataBaseUrl", "productId", "productName"]) {
             if (!(prop in data))
                 throw "Wrong config data: " + prop + " is missing";
@@ -253,7 +236,6 @@ function onConfig(result) {
         codeCheckerConfig.productId = data.productId;
         codeCheckerConfig.productName = data.productName;
         codeCheckerConfig.productDescription = data.productDescription;
-        log("onConfig()", "codeCheckerConfig=", codeCheckerConfig);
 
         $("#product-name").text(codeCheckerConfig.productName);
         $("#product-description").text(codeCheckerConfig.productDescription);
@@ -264,9 +246,7 @@ function onConfig(result) {
 
 function onTotal(result) {
     try {
-        log("onTotal()", "result=", result);
         var data = JSON.parse(result);
-        log("onTotal()", "data=", data);
 
         summaryData.remove();
         summaryData.add(TOTAL, data);
@@ -284,12 +264,8 @@ function onTotal(result) {
 
 function onSummary(result, component) {
     try {
-        log("onSummary()", "result=", result);
         var data = JSON.parse(result);
-        log("onSummary()", "data=", data);
-
         summaryData.add(component, data);
-
         issues = processSummary(data);
         addSummaryRow(issues, component);
     } catch(e) {
@@ -299,12 +275,9 @@ function onSummary(result, component) {
 
 function onComponents(result) {
     try {
-        log("onComponents()", "result=", result);
         var data = JSON.parse(result);
-        log("onComponents()", "data=", data);
         var meta = {};
         for (const component of data) {
-            log("onComponents()", "component=", component);
             requestSummaryForComponent(component["name"]);
             meta[component["name"]] = component;
         }
@@ -316,7 +289,6 @@ function onComponents(result) {
 }
 
 function processSummary(data) {
-    log("processSummary()");
     var issues = {
         "CRITICAL": 0,
         "HIGH": 0,
@@ -328,7 +300,6 @@ function processSummary(data) {
     for (const checker of data) {
         issues[checker["severity"]] += checker["reports"];
     }
-    log("processSummary()", "issues=", issues);
     return issues;
 }
 
@@ -353,8 +324,6 @@ function createNumberCell(number) {
 }
 
 function addSummaryRow(issues, component = TOTAL) {
-    log("addSummaryRow()", "issues=", issues);
-
     var title = component;
     var url = codeCheckerConfig.getUrl() + "/reports?is-unique=on&detection-status=Unresolved";
     var popup = false;
@@ -524,12 +493,9 @@ function onLastMonth(result) {
 
 function onRecentlyDetected(result, title, detected, style = "") {
     try {
-        log("onRecentlyDetected()", "result=", result);
         var data = JSON.parse(result);
-        log("onRecentlyDetected()", "data=", data);
         summaryData.add(RECENT, data);
         issues = processSummary(data);
-        log("onRecentlyDetected()", "issues=", issues);
 
         function addLabel(element, issues, color, popup) {
             if (issues > 0) {
@@ -572,11 +538,8 @@ function onRecentlyDetected(result, title, detected, style = "") {
 
 function onDataForChart(date, result) {
     try {
-        log("onDataForChart()", "result=", result);
         var data = JSON.parse(result);
-        log("onDataForChart()", "data=", data);
         issues = processSummary(data);
-        log("onDataForChart()", "date=", date, "issues=", issues);
         timeLineChart.draw(date, issues);
     } catch(e) {
         error("Failed to process data for Chart", e, "Date:", date, "Request result:", result);
@@ -587,7 +550,6 @@ var timeLineChart = {
     // Public:
     draw: function(date, issues) {
         try {
-            log("timeLineChart.draw()", "date=", date, "issues=", issues);
             this.chartData[date.getTime()] = issues;
             this.chartTime.push(date.getTime());
             this.chartTime.sort();
@@ -687,7 +649,15 @@ var timeLineChart = {
     }
 }
 
+var page = {
+    debug: false,
+    init: function() {
+        var query = new URLSearchParams(window.location.search);
+        this.debug = query.has("debug");
+    }
+}
+
 $(function() {
-    log("$(function(){})");
+    page.init();
     onLoad();
 });
