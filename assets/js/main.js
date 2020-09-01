@@ -413,12 +413,13 @@ function displayCheckers(data) {
         UNSPECIFIED: "Unspecified"
     }
 
-    var url = codeCheckerConfig.getUrl() + "/reports?is-unique=on&detection-status=Unresolved";
+    var url = codeCheckerConfig.getUrl() + "/reports?is-unique=on";
     if (summaryTable.component)
         url += "&source-component=" + summaryTable.component;
     if (summaryTable.detected)
         url += "&first-detection-date=" + summaryTable.detected; // 2020-09-01
-    url += "&checker-name=";
+    else
+        url += "&detection-status=New&detection-status=Unresolved&detection-status=Reopened";
 
     for (const item of data) {
         var external = $("<i>").addClass("small external alternate icon");
@@ -426,7 +427,7 @@ function displayCheckers(data) {
             $("<a>", {
                 text: item["checker"],
                 title: "Open CodeChecker online database in new window",
-                href: url + item["checker"],
+                href: url + "&checker-name=" + item["checker"],
                 target: "_blank",
             }).prepend(external)
         );
