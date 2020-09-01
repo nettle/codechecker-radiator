@@ -39,7 +39,8 @@ const RECENT = "__RECENT__";
 
 var summaryTable = {
     selected: false,
-    component: false
+    component: false,
+    detected: false
 };
 
 var summaryData = {
@@ -231,9 +232,10 @@ function requestRecent(days, handler) {
     var date = new Date();
     date.setDate(now.getDate() - days);
     var requestDate = formateDate(date, ":");
+    var detectedDate = formateDate(date, "-");
     sendRequest("query=recent&date=" + requestDate, function(result) {
         log("requestRecent()", "data received after " + date);
-        handler(result);
+        handler(result, detectedDate);
     });
 }
 
@@ -415,7 +417,7 @@ function addSummaryRow(issues, component = TOTAL) {
         selectSummaryRow(row);
 }
 
-function selectSummaryRow(row, component = false) {
+function selectSummaryRow(row, component = false, detected = false) {
     if (summaryTable.selected == row)
         return;
     if (summaryTable.selected)
@@ -426,6 +428,7 @@ function selectSummaryRow(row, component = false) {
         summaryTable.component = component;
     else
         summaryTable.component = false;
+    summaryTable.detected = detected;
 }
 
 function displayCheckers(data) {
@@ -443,6 +446,8 @@ function displayCheckers(data) {
     var url = codeCheckerConfig.getUrl() + "/reports?is-unique=on&detection-status=Unresolved";
     if (summaryTable.component)
         url += "&source-component=" + summaryTable.component;
+    if (summaryTable.detected)
+        url += "&first-detection-date=" + summaryTable.detected; // 2020-09-01
     url += "&checker-name=";
 
     for (const item of data) {
@@ -492,23 +497,23 @@ function displayCheckers(data) {
     }
 }
 
-function onLastDay(result) {
-    if (!onRecentlyDetected(result, "Detected within the last day:", "red"))
+function onLastDay(result, detected) {
+    if (!onRecentlyDetected(result, "Detected within the last day:", detected, "red"))
         requestRecent(7, onLastWeek);
 }
 
-function onLastWeek(result) {
-    if (!onRecentlyDetected(result, "Detected within the last week:", "orange"))
+function onLastWeek(result, detected) {
+    if (!onRecentlyDetected(result, "Detected within the last week:", detected, "orange"))
         requestRecent(10, onLastTenDays);
 }
 
-function onLastTenDays(result) {
-    if (!onRecentlyDetected(result, "Detected within the last 10 days:", "orange"))
+function onLastTenDays(result, detected) {
+    if (!onRecentlyDetected(result, "Detected within the last 10 days:", detected, "orange"))
         requestRecent(15, onLastTwoWeek);
 }
 
-function onLastTwoWeek(result) {
-    if (!onRecentlyDetected(result, "Detected within the last two weeks:"))
+function onLastTwoWeek(result, detected) {
+    if (!onRecentlyDetected(result, "Detected within the last two weeks:", detected))
         requestRecent(30, onLastMonth);
 }
 
@@ -516,7 +521,7 @@ function onLastMonth(result) {
     onRecentlyDetected(result, "Detected within the last month:");
 }
 
-function onRecentlyDetected(result, title, style = "") {
+function onRecentlyDetected(result, title, detected, style = "") {
     try {
         log("onRecentlyDetected()", "result=", result);
         var data = JSON.parse(result);
@@ -543,19 +548,19 @@ function onRecentlyDetected(result, title, style = "") {
 
         if (total > 0) {
             title += " " + total + " ";
-            var detected = $("<div>").text(title).addClass("ui right floated basic button " + style);
-            addLabel(detected, issues["CRITICAL"], "red", "Critical defects");
-            addLabel(detected, issues["HIGH"], "orange", "High severity defects");
-            addLabel(detected, issues["MEDIUM"], "yellow", "Medium severity defects");
-            addLabel(detected, issues["LOW"], "olive", "Low severity defects");
-            addLabel(detected, issues["STYLE"], "purple", "Style defects");
-            addLabel(detected, issues["UNSPECIFIED"], "grey", "Unspecified defects");
-            detected.click(function() {
+            var element = $("<div>").text(title).addClass("ui right floated basic button " + style);
+            addLabel(element, issues["CRITICAL"], "red", "Critical defects");
+            addLabel(element, issues["HIGH"], "orange", "High severity defects");
+            addLabel(element, issues["MEDIUM"], "yellow", "Medium severity defects");
+            addLabel(element, issues["LOW"], "olive", "Low severity defects");
+            addLabel(element, issues["STYLE"], "purple", "Style defects");
+            addLabel(element, issues["UNSPECIFIED"], "grey", "Unspecified defects");
+            element.click(function() {
                 var checkers = summaryData.get(RECENT);
-                selectSummaryRow(detected, RECENT);
+                selectSummaryRow(element, RECENT, detected);
                 displayCheckers(checkers);
             });
-            detected.insertAfter("#product-name");
+            element.insertAfter("#product-name");
             $(".ui.label").popup();
         }
         return total;
