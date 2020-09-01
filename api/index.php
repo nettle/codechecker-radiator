@@ -1,6 +1,15 @@
 <?php
 
+namespace CodeCheckerApi;
+
 require_once("codechecker.php");
+
+function error($message)
+{
+    $message = "ERROR: " . $message;
+    echo $message;
+    debug_log($message);
+}
 
 function debug_log($message)
 {
@@ -68,6 +77,29 @@ function queryComponents()
     debug_log("queryComponents(): Done.");
 }
 
+function queryProduct()
+{
+    debug_log("queryProduct(): getting config...");
+    $config = getConfig();
+    $id = $config["productId"];
+    debug_log("queryProduct(): creating CodeChecker...");
+    $codechecker = getCodeChecker();
+    debug_log("queryProduct(): getting all products...");
+    $json = $codechecker->getProducts();
+    $products = json_decode($json, true);
+    foreach ($products as $item) {
+        if (array_key_exists($id, $item)) {
+            $prod = $item[$id];
+            $json = json_encode($prod);
+            debug_log("queryProduct(): JSON: $json");
+            echo $json;
+            debug_log("queryProduct(): Done.");
+            return;
+        }
+    }
+    return error("Could not find product $id");
+}
+
 function main()
 {
     debug_log("===================================");
@@ -87,6 +119,7 @@ function main()
     switch($query)
     {
         case "config": return queryConfig();
+        case "product": return queryProduct();
         case "total": return querySummary();
         case "components": return queryComponents();
         case "summary": return querySummary($component, $date);
@@ -94,8 +127,7 @@ function main()
         default:
             $error = "ERROR: unsupported query '$query'";
             $error .= "\nQUERY_STRING: " . $_SERVER["QUERY_STRING"];
-            echo $error;
-            return debug_log($error);
+            return error($error);
     }
     debug_log("Finish.\n");
 }

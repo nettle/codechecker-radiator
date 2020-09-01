@@ -173,7 +173,32 @@ function sendRequest(query, handler) {
 function requestConfig() {
     sendRequest("query=config", function(result) {
         onConfig(result);
+        // requestProduct();
         requestTotal();
+    });
+}
+
+function requestProduct() {
+    sendRequest("query=product", function(result) {
+        debug_log(result);
+        var data = JSON.parse(result);
+        var title = data["displayedName_b64"];
+        var description = data["description_b64"];
+        title = atob(title);
+        description = atob(description);
+        debug_log("title=", title, "description=", description);
+        $("#product-name").text(title);
+        $("#product-description").text(description);
+        // Product ifo structure:
+        // data["endpoint"] == "PD_BBI"
+        // data["connected"] == true
+        // data["accessible"] == true
+        // data["administrating"] == true
+        // data["databaseStatus"] == 0
+        // data["runCount"] = 31
+        // data["latestStoreToProduct"] = "2020-09-01 14:18:53.615597"
+        // data["runLimit"] == null
+        // data["runStoreInProgress"] == []
     });
 }
 

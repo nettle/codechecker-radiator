@@ -45,6 +45,14 @@ class CodeChecker
         return $result;
     }
 
+    public function getProducts()
+    {
+        $command = "cmd products list";
+        $command .= " --url=" . $this->getProductUrl();
+        $result = $this->execute($command);
+        return $result;
+    }
+
     protected function execute($command)
     {
         $jsonFileName = tempnam(sys_get_temp_dir(), "codechecker-result.json.");
