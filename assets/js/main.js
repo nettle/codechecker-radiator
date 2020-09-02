@@ -130,6 +130,9 @@ function onLoad() {
         $("table").tablesort();
         // Enable accordions
         $(".ui.accordion").accordion();
+        // Enable dropdown
+        $(".ui.dropdown").dropdown();
+
         // Display "Loading..." sign
         enableLoader();
         // Request project configuration
@@ -357,7 +360,7 @@ function addSummaryRow(issues, component = TOTAL) {
     } else {
         url += "&source-component=" + component;
         var meta = summaryData.getMeta(component);
-        popup = meta["description"] + " (" + meta["value"] + ")";
+        popup = "<b>" + meta["description"] + "</b><pre>" + meta["value"] + "</pre>";
     }
 
     var external = $("<i>").addClass("small external alternate icon");
@@ -371,7 +374,7 @@ function addSummaryRow(issues, component = TOTAL) {
     );
     if (popup) {
         name.addClass("popper");
-        name.attr("data-content", popup);
+        name.attr("data-html", popup);
         name.attr("data-position", "bottom left")
     }
     var critical = createNumberCell(issues["CRITICAL"]);
@@ -540,7 +543,7 @@ function onRecentlyDetected(result, title, detected, style = "") {
             total += issues[item];
 
         if (total > 0) {
-            title += " " + total + " ";
+            title += " "; // + total + " ";
             var element = $("<div>").text(title).addClass("ui right floated basic button " + style);
             addLabel(element, issues["CRITICAL"], "red", "Critical defects");
             addLabel(element, issues["HIGH"], "orange", "High severity defects");
@@ -553,7 +556,7 @@ function onRecentlyDetected(result, title, detected, style = "") {
                 selectSummaryRow(element, RECENT, detected);
                 displayCheckers(checkers);
             });
-            element.insertAfter("#product-name");
+            $("#detected").append(element);
             $(".ui.label").popup();
         }
         return total;
