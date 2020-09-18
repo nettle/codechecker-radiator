@@ -37,9 +37,9 @@ class CodeChecker
         if ($component)
             $command .= " --component=" . $component;
         if ($before)
-            $command .= " --fixed-at=" . $before;
+            $command .= " --detected-before=" . $before;
         if ($after)
-            $command .= " --detected-at=" . $after;
+            $command .= " --detected-after=" . $after;
         $command .= " --url=" . $this->getProductUrl();
         $result = $this->execute($command);
         return $result;

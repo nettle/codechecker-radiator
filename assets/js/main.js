@@ -445,7 +445,7 @@ function displayCheckers(data) {
     if (summaryTable.component)
         url += "&source-component=" + summaryTable.component;
     if (summaryTable.detected)
-        url += "&first-detection-date=" + summaryTable.detected; // 2020-09-01
+        url += "&detected-after=" + summaryTable.detected; // 2020-09-01
     else
         url += "&detection-status=New&detection-status=Unresolved&detection-status=Reopened";
 
