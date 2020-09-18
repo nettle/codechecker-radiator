@@ -10,7 +10,7 @@ on:
     inputs:
       name:
         description: 'Release name'
-        default: 'Version 0.0'
+        default: 'CodeChecker Radiator version 0.0'
         required: true
       tag:
         description: 'Release tag'
@@ -18,7 +18,7 @@ on:
         required: true
       file-name:
         description: 'Package file name'
-        default: 'package-name-v0.0'
+        default: 'codechecker-radiator-0.0'
         required: true
 
 # Release jobs
