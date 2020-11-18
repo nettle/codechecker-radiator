@@ -362,7 +362,11 @@ function addSummaryRow(issues, component = TOTAL) {
     } else {
         url += "&source-component=" + component;
         var meta = summaryData.getMeta(component);
-        popup = "<b>" + meta["description"] + "</b><pre>" + meta["value"] + "</pre>";
+        var description = meta["description"];
+        var filter = meta["value"];
+        if (filter == null)
+            filter = "";
+        popup = "<b>" + description + "</b><pre>" + filter + "</pre>";
     }
 
     var external = $("<i>").addClass("small external alternate icon");

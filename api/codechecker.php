@@ -35,7 +35,7 @@ class CodeChecker
     {
         $command = "cmd sum --all";
         if ($component)
-            $command .= " --component=" . $component;
+            $command .= " --component=\"" . $component . "\"";
         if ($before)
             $command .= " --detected-before=" . $before;
         if ($after)
