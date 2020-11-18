@@ -37,8 +37,8 @@ class CodeChecker
         if ($component)
             $command .= " --component=\"" . $component . "\"";
         if ($before)
-            $command .= " --detected-before=" . $before;
-        if ($after)
+            $command .= " --open-reports-date=" . $before;
+        elseif ($after)
             $command .= " --detected-after=" . $after;
         $command .= " --url=" . $this->getProductUrl();
         $result = $this->execute($command);
