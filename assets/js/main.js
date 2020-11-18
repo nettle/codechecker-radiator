@@ -137,8 +137,10 @@ function onLoad() {
         enableLoader();
         // Request project configuration
         requestConfig();
+
         // Reload page every 30 minutes of idle
-        reloadOnIdle(30);
+        // NOTE: Disable auto-reload so far
+        // reloadOnIdle(30);
     } catch(e) {
         error("Unknown exception", e);
     }
