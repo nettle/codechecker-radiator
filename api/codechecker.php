@@ -34,12 +34,17 @@ class CodeChecker
     public function getSummary($component = false, $before = false, $after = false)
     {
         $command = "cmd sum --all";
-        if ($component)
+        if ($component) {
             $command .= " --component=\"" . $component . "\"";
-        if ($before)
+        }
+        if ($before) {
             $command .= " --open-reports-date=" . $before;
-        elseif ($after)
+            $command .= " --review-status unreviewed confirmed";
+            $command .= " --detection-status new reopened unresolved resolved off unavailable";
+        }
+        elseif ($after) {
             $command .= " --detected-after=" . $after;
+        }
         $command .= " --url=" . $this->getProductUrl();
         $result = $this->execute($command);
         return $result;

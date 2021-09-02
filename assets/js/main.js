@@ -238,7 +238,7 @@ function requestDataForChart(days = 60) {
 
 function requestSummaryForDate(date) {
     // NOTE: adding time as a last second of the day
-    var requestDate = formateDate(date, ":") + ":23:59:59";
+    var requestDate = formateDate(date, ":") + ":12:00:00";
     sendRequest("query=summary&date=" + requestDate, function(result) {
         onDataForChart(date, result);
     });
