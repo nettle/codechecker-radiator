@@ -107,11 +107,13 @@ function main()
     debug_log("===================================");
 
     $query = $_GET["query"];
-    $component = $_GET["component"];
-    $date = $_GET["date"];
-    if (!$component)
+    if (isset($_GET["component"]))
+        $component = $_GET["component"];
+    else
         $component = false;
-    if (!$date)
+    if (isset($_GET["date"]))
+        $date = $_GET["date"];
+    else
         $date = false;
     debug_log("GET: query = $query");
     debug_log("GET: component = $component");
